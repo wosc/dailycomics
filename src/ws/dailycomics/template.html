@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <title>dailystrips for {{date.strftime('%Y-%m-%d')}}</title>
+  <link rel="shortcut icon" href="favicon.png">
+
+  <style type="text/css">
+     body {
+         font-family: sans-serif;
+     }
+
+     .comic {
+         margin-top: 3em;
+     }
+  </style>
+</head>
+<body>
+
+<h1>dailystrips for {{date.strftime('%Y-%m-%d')}}</h1>
+
+<div class="nav">
+  &lt;
+  <a href="dailystrips-{{(date - day).strftime('%Y-%m-%d')}}.html">Previous day</a> |
+  <a href="dailystrips-{{(date + day).strftime('%Y-%m-%d')}}.html">Next day</a>
+  &gt;
+</div>
+
+{% for comic in comics %}
+<div class="comic">
+    <h2><a href="{{comic.url}}">{{comic.title}}</a></h2>
+    {% if comic.alt %}
+    <p>{{comic.alt}}</p>
+    {% endif %}
+    <img src="{{comic.image}}">
+</div>
+{% endfor %}
+
+</body>
+</html>
