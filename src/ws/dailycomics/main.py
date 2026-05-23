@@ -31,6 +31,9 @@ def main():
         comic['id'] = comic['title'].lower().replace(' ', '')
         try:
             comics.append(download(comic))
+        except RuntimeError as e:
+            comic['alt'] = Markup(f'<b>Status {e.args[0]}</b>')
+            comics.append(comic)
         except Exception as e:
             comic['alt'] = Markup('<pre>' + '\n'.join(traceback.format_exception(e)) + '</pre>')
             comics.append(comic)
@@ -51,6 +54,8 @@ def download(comic):
         if 'headers' in comic:
             http.headers.update(comic['headers'])
         r = http.get(comic['url'])
+        if not r.ok:
+            raise RuntimeError(r.status_code)
         if 'url_change' in comic:
             url = _extract(r.text, comic['url_change'])
             r = http.get(url)
@@ -65,6 +70,8 @@ def download(comic):
 
 def _download_image(http, comic):
     r = http.get(comic['img_url'], stream=True)
+    if not r.ok:
+        raise RuntimeError(r.status_code)
     filename = urlparse(comic['img_url']).path
     _, ext = os.path.splitext(os.path.basename(filename))
     comic['image'] = f'{comic["id"]}-{TODAY_STR}{ext}'
