@@ -48,8 +48,8 @@ def main():
 
 def download(comic):
     with requests.Session() as http:
-        if 'agent' in comic:
-            http.headers['user-agent'] = comic['agent']
+        if 'headers' in comic:
+            http.headers.update(comic['headers'])
         r = http.get(comic['url'])
         if 'url_change' in comic:
             url = _extract(r.text, comic['url_change'])
