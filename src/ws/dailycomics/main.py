@@ -59,25 +59,30 @@ def download(comic):
         if 'url_change' in comic:
             url = _extract(r.text, comic['url_change'])
             r = http.get(url)
-        comic['img_url'] = _extract(r.text, comic['pattern'])
-        if 'base' in comic:
-            comic['img_url'] = comic['base'] + comic['img_url']
-        _download_image(http, comic)
         if 'alt' in comic:
             comic['alt'] = _extract(r.text, comic['alt'])
+        comic['images'] = []
+        for i, url in enumerate(re.findall(comic['pattern'], r.text)):
+            comic['images'].append(_download_image(http, comic, url, i))
+            if not comic.get('pattern_multi'):
+                break
     return comic
 
 
-def _download_image(http, comic):
-    r = http.get(comic['img_url'], stream=True)
+def _download_image(http, comic, url, index):
+    if 'base' in comic:
+        url = comic['base'] + url
+
+    r = http.get(url, stream=True)
     if not r.ok:
         raise RuntimeError(r.status_code)
-    filename = urlparse(comic['img_url']).path
+    filename = urlparse(url).path
     _, ext = os.path.splitext(os.path.basename(filename))
-    comic['image'] = f'{comic["id"]}-{TODAY_STR}{ext}'
-    with open(comic['image'], 'wb') as f:
+    filename = f'{comic["id"]}-{TODAY_STR}-{index}{ext}'
+    with open(filename, 'wb') as f:
         for chunk in r.iter_content(2048):
             f.write(chunk)
+    return filename
 
 
 def _extract(text, pattern):

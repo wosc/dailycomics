@@ -33,7 +33,9 @@
     {% if comic.alt %}
     <p>{{comic.alt}}</p>
     {% endif %}
-    <img src="{{comic.image}}">
+    {% for image in comic.images %}
+    <div><img src="{{image}}"></div>
+    {% endfor %}
 </div>
 {% endfor %}
 
